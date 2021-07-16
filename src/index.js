@@ -1,39 +1,26 @@
 import Phaser from 'phaser';
-import logoImg from './assets/logo.png';
+import Scene from './js/scene.js'
+import PhaserMatterCollisionPlugin from 'phaser-matter-collision-plugin'
 
-class MyGame extends Phaser.Scene
-{
-    constructor ()
-    {
-        super();
-    }
-
-    preload ()
-    {
-        this.load.image('logo', logoImg);
-    }
-      
-    create ()
-    {
-        const logo = this.add.image(400, 150, 'logo');
-      
-        this.tweens.add({
-            targets: logo,
-            y: 450,
-            duration: 2000,
-            ease: "Power2",
-            yoyo: true,
-            loop: -1
-        });
-    }
-}
 
 const config = {
     type: Phaser.AUTO,
-    parent: 'phaser-example',
-    width: 800,
-    height: 600,
-    scene: MyGame
+    width: 448,
+    height: 224,
+    backgroundColor: "#000c1f",
+    parent: "game-container",
+    scene: Scene,
+    pixelArt: true,
+    physics: { default: "matter" },
+    plugins: {
+        scene: [
+            {
+                plugin: PhaserMatterCollisionPlugin, // The plugin class
+                key: "matterCollision", // Where to store in Scene.Systems, e.g. scene.sys.matterCollision
+                mapping: "matterCollision" // Where to store in the Scene, e.g. scene.matterCollision
+            }
+        ]
+    }
 };
 
 const game = new Phaser.Game(config);
