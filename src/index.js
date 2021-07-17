@@ -10,7 +10,17 @@ const config = {
   parent: 'game-container',
   scene: Scene,
   pixelArt: true,
-  physics: { default: 'matter' },
+  physics: {
+    default: 'matter',
+    matter: {
+      debug: {
+        showBody: true,
+        showStaticBody: true,
+        showBounds: true,
+        boundsColor: 0xffffff,
+      },
+    },
+  },
   plugins: {
     scene: [
       {
