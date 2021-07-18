@@ -1,15 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
+<<<<<<< HEAD
     <list default="true" id="5af200cc-0b78-49a8-a3aa-6dd04d328713" name="Default Changelist" comment="">
       <change afterPath="$PROJECT_DIR$/src/js/player2.js" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/src/states/notJumping.js" afterDir="false" />
+=======
+    <list default="true" id="5af200cc-0b78-49a8-a3aa-6dd04d328713" name="Default Changelist" comment="basic state">
+      <change afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/assets/shortermap.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/assets/temp-tiles.png" afterDir="false" />
+>>>>>>> master
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/assets/logo.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/index.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/js/player.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/js/player.js" afterDir="false" />
+<<<<<<< HEAD
       <change beforePath="$PROJECT_DIR$/src/states/idle.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/states/idle.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/states/jumping.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/states/jumping.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/states/moveLeft.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/states/moveLeft.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/states/moveRight.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/states/moveRight.js" afterDir="false" />
+=======
+      <change beforePath="$PROJECT_DIR$/src/js/scene.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/js/scene.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/webpack/base.js" beforeDir="false" afterPath="$PROJECT_DIR$/webpack/base.js" afterDir="false" />
+>>>>>>> master
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -86,5 +101,9 @@
       </map>
     </option>
     <option name="oldMeFiltersMigrated" value="true" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="basic state" />
+    <option name="LAST_COMMIT_MESSAGE" value="basic state" />
   </component>
 </project>

@@ -2,14 +2,14 @@ import Phaser from 'phaser';
 
 import Player from './player';
 
-import map from '../assets/newtemp.json';
-import tile3 from '../assets/tile3.png';
+import map from '../assets/shortermap.json';
+import tiles from '../assets/temp-tiles.png';
 import shrek from '../assets/shrekatlas.png';
 
 export default class Scene extends Phaser.Scene {
   preload() {
     this.load.tilemapTiledJSON('map', map);
-    this.load.image('tile3', tile3);
+    this.load.image('tiles', tiles);
     this.load.spritesheet('player', shrek, {
       frameWidth: 16,
       frameHeight: 32,
@@ -20,24 +20,45 @@ export default class Scene extends Phaser.Scene {
 
   create() {
     const map = this.make.tilemap({ key: 'map' });
-    const tileset = map.addTilesetImage('tile 3', 'tile3');
-    const platform = map.createLayer('TempLayer', tileset, 0, 0);
-    platform.setCollisionByProperty({ collides: true });
+    const tileset = map.addTilesetImage('temp-tiles', 'tiles');
+    this.worldLayer = map.createLayer('world', tileset);
+    this.worldLayer.setCollisionByProperty({ collides: true, lethal: true });
 
-    // const debugGraphics = this.add.graphics().setAlpha(0.75);
-    // platform.renderDebug(debugGraphics, {
-    //   tileColor: null, // Color of non-colliding tiles
-    //   collidingTileColor: new Phaser.Display.Color(243, 134, 48, 255), // Color of colliding tiles
-    //   faceColor: new Phaser.Display.Color(40, 39, 37, 255), // Color of colliding face edges
-    // });
-    this.matter.world.convertTilemapLayer(platform);
-    // Parameters are the name you gave the tileset in Tiled and then the key of the tileset image in
-    // Phaser's cache (i.e. the name you used in preload)
-    // const tileset = map.addTilesetImage("tuxmon-sample-32px-extruded", "tiles");
+    this.matter.world.convertTilemapLayer(this.worldLayer);
 
-    this.player = new Player(this, 40, 0);
+    const spawnPoint = map.findObject(
+      'objects',
+      (obj) => obj.name === 'player-spawn'
+    );
+    this.player = new Player(this, spawnPoint.x, spawnPoint.y);
 
     // Smoothly follow the player
-    this.cameras.main.startFollow(this.player.sprite, false, 0.5, 0.5);
+    this.cameras.main.startFollow(this.player.sprite);
+    this.cameras.main.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
+    this.matter.world.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
+
+    this.unsubscribePlayerCollide = this.matterCollision.addOnCollideStart({
+      objectA: this.player.sprite,
+      callback: this.onPlayerCollide,
+      context: this,
+    });
+  }
+
+  onPlayerCollide({ gameObjectB }) {
+    if (!gameObjectB || !(gameObjectB instanceof Phaser.Tilemaps.Tile)) return;
+
+    const tile = gameObjectB;
+
+    // Check the tile property set in Tiled (you could also just check the index if you aren't using
+    // Tiled in your game)
+    if (tile.properties.lethal) {
+      // Unsubscribe from collision events so that this logic is run only once
+      this.unsubscribePlayerCollide();
+
+      this.player.freeze();
+      const cam = this.cameras.main;
+      cam.fade(250, 0, 0, 0);
+      cam.once('camerafadeoutcomplete', () => this.scene.restart());
+    }
   }
 }

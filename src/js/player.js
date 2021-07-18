@@ -186,7 +186,7 @@ export default class Player {
       else sprite.anims.play('player-idle', true);
     } else {
       sprite.anims.stop();
-      sprite.setTexture('player', 10);
+      sprite.setTexture('player', 5);
     }
   }
 
