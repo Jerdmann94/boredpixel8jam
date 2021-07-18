@@ -1,21 +1,32 @@
 import Phaser from 'phaser';
 import MultiKey from './multi-key.js';
+import MoveRight from '../states/moveRight';
+import MoveLeft from '../states/moveLeft';
+import idle from '../states/idle.js';
+import jumping from '../states/jumping';
 
 export default class Player {
   constructor(scene, x, y) {
     this.scene = scene;
+    this.states = {
+      idle: new idle(this),
+      moveLeft: new MoveLeft(this),
+      moveRight: new MoveRight(this),
+      jumping: new jumping(this),
+    };
+    this.setState('idle');
 
     // Create the animations we need from the player spritesheet
     const anims = scene.anims;
     anims.create({
       key: 'player-idle',
-      frames: anims.generateFrameNumbers('player', { start: 7, end: 7 }),
+      frames: anims.generateFrameNumbers('player', { start: 0, end: 3 }),
       frameRate: 3,
       repeat: -1,
     });
     anims.create({
       key: 'player-run',
-      frames: anims.generateFrameNumbers('player', { start: 0, end: 3 }),
+      frames: anims.generateFrameNumbers('player', { start: 8, end: 15 }),
       frameRate: 12,
       repeat: -1,
     });
@@ -46,15 +57,13 @@ export default class Player {
 
     const { Body, Bodies } = Phaser.Physics.Matter.Matter; // Native Matter modules
     const { width: w, height: h } = this.sprite;
-    const mainBody = Bodies.rectangle(8, 16, w * 0.6, h, {
+    const mainBody = Bodies.rectangle(0, 0, w * 0.6, h, {
       chamfer: { radius: 10 },
     });
     this.sensors = {
-      bottom: Bodies.rectangle(8, h * 0.5 + 16, w * 0.25, 2, {
-        isSensor: true,
-      }),
-      left: Bodies.rectangle(-w * 0.35 + 8, 16, 2, h * 0.5, { isSensor: true }),
-      right: Bodies.rectangle(w * 0.35 + 8, 16, 2, h * 0.5, { isSensor: true }),
+      bottom: Bodies.rectangle(0, h * 0.5, w * 0.25, 2, { isSensor: true }),
+      left: Bodies.rectangle(-w * 0.35, 0, 2, h * 0.5, { isSensor: true }),
+      right: Bodies.rectangle(w * 0.35, 0, 2, h * 0.5, { isSensor: true }),
     };
     const compoundBody = Body.create({
       parts: [
@@ -106,6 +115,15 @@ export default class Player {
     this.scene.events.once('destroy', this.destroy, this);
   }
 
+  setState(name) {
+    if (this.currentState === this.states[name]) {
+      return;
+    }
+
+    this.currentState = this.states[name];
+    this.currentState.enter();
+  }
+
   onSensorCollide({ bodyA, bodyB, pair }) {
     // Watch for the player colliding with walls/objects on either side and the ground below, so
     // that we can use that logic inside of update to move the player.
@@ -150,22 +168,14 @@ export default class Player {
     // --- Move the player horizontally ---
 
     // Adjust the movement so that the player is slower in the air
-    const moveForce = isOnGround ? 0.001 : 0.0005;
+    const moveForce = isOnGround ? 0.01 : 0.005;
 
     if (isLeftKeyDown) {
-      sprite.setFlipX(true);
-
-      // Don't let the player push things left if they in the air
-      if (!(isInAir && this.isTouching.left)) {
-        sprite.applyForce({ x: -moveForce, y: 0 });
-      }
+      this.setState('moveLeft');
     } else if (isRightKeyDown) {
-      sprite.setFlipX(false);
+      this.setState('moveRight');
 
       // Don't let the player push things right if they in the air
-      if (!(isInAir && this.isTouching.right)) {
-        sprite.applyForce({ x: moveForce, y: 0 });
-      }
     }
 
     // Limit horizontal speed, without this the player's velocity would just keep increasing to
