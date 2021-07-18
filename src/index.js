@@ -4,21 +4,22 @@ import PhaserMatterCollisionPlugin from 'phaser-matter-collision-plugin';
 
 const config = {
   type: Phaser.AUTO,
-  width: 448,
-  height: 224,
-  backgroundColor: '#000c1f',
+  width: 400,
+  height: 320,
+  zoom: 2,
+  backgroundColor: '#87CEFA',
   parent: 'game-container',
   scene: Scene,
   pixelArt: true,
   physics: {
     default: 'matter',
     matter: {
-      debug: {
-        showBody: true,
-        showStaticBody: true,
-        showBounds: true,
-        boundsColor: 0xffffff,
-      },
+      // debug: {
+      //   showBody: true,
+      //   showStaticBody: true,
+      //   showBounds: true,
+      //   boundsColor: 0xffffff,
+      // },
     },
   },
   plugins: {
