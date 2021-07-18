@@ -1,6 +1,6 @@
 export default class idle {
   // /** @type {Phaser.Physics.Arcade.Sprite} */
-  // player
+  player;
   //
   // /**
   //  * @param {Phaser.Physics.Arcade.Sprite} player
@@ -10,10 +10,11 @@ export default class idle {
   }
 
   enter() {
-    this.player.setVelocity(0, 0);
-    const key = this.player.anims.currentAnim.key;
-    const parts = key.split('-');
-    const direction = parts[0];
-    this.player.play(`${direction}-idle`);
+    this.player.sprite.setVelocityX(0);
+
+    //const key = this.player.anims.currentAnim.key;
+    //const parts = key.split('-');
+    //const direction = parts[0];
+    this.player.sprite.anims.play(`player-idle`);
   }
 }

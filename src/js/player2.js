@@ -3,12 +3,16 @@ import MultiKey from './multi-key.js';
 import MoveRight from '../states/moveRight';
 import MoveLeft from '../states/moveLeft';
 import idle from '../states/idle.js';
-import jumping from '../states/jumping';
-import notJumping from '../states/notJumping';
 
 export default class Player {
   constructor(scene, x, y) {
     this.scene = scene;
+    this.states = {
+      idle: new idle(this),
+      moveLeft: new MoveLeft(this),
+      moveRight: new MoveRight(this),
+    };
+    this.setState('idle');
 
     // Create the animations we need from the player spritesheet
     const anims = scene.anims;
@@ -28,17 +32,36 @@ export default class Player {
     // Create the physics-based sprite that we will move around and animate
     this.sprite = scene.matter.add.sprite(0, 0, 'player', 0);
 
+    // The player's body is going to be a compound body that looks something like this:
+    //
+    //                  A = main body
+    //
+    //                   +---------+
+    //                   |         |
+    //                 +-+         +-+
+    //       B = left  | |         | |  C = right
+    //    wall sensor  |B|    A    |C|  wall sensor
+    //                 | |         | |
+    //                 +-+         +-+
+    //                   |         |
+    //                   +-+-----+-+
+    //                     |  D  |
+    //                     +-----+
+    //
+    //                D = ground sensor
+    //
+    // The main body is what collides with the world. The sensors are used to determine if the
+    // player is blocked by a wall or standing on the ground.
+
     const { Body, Bodies } = Phaser.Physics.Matter.Matter; // Native Matter modules
     const { width: w, height: h } = this.sprite;
-    const mainBody = Bodies.rectangle(8, 16, w * 0.6, h * 0.9, {
+    const mainBody = Bodies.rectangle(0, 0, w * 0.6, h, {
       chamfer: { radius: 10 },
     });
     this.sensors = {
-      bottom: Bodies.rectangle(8, h * 0.5 + 16, w * 0.25, 2, {
-        isSensor: true,
-      }),
-      left: Bodies.rectangle(-w * 0.35 + 8, 16, 2, h * 0.5, { isSensor: true }),
-      right: Bodies.rectangle(w * 0.35 + 8, 16, 2, h * 0.5, { isSensor: true }),
+      bottom: Bodies.rectangle(0, h * 0.5, w * 0.25, 2, { isSensor: true }),
+      left: Bodies.rectangle(-w * 0.35, 0, 2, h * 0.5, { isSensor: true }),
+      right: Bodies.rectangle(w * 0.35, 0, 2, h * 0.5, { isSensor: true }),
     };
     const compoundBody = Body.create({
       parts: [
@@ -88,18 +111,6 @@ export default class Player {
     this.scene.events.on('update', this.update, this);
     this.scene.events.once('shutdown', this.destroy, this);
     this.scene.events.once('destroy', this.destroy, this);
-
-    this.states = {
-      idle: new idle(this),
-      moveLeft: new MoveLeft(this),
-      moveRight: new MoveRight(this),
-    };
-    this.jumpState = {
-      jumping: new jumping(this),
-      notJumping: new notJumping(this),
-    };
-    this.setState('idle');
-    this.setJumpState('notJumping');
   }
 
   setState(name) {
@@ -109,17 +120,6 @@ export default class Player {
 
     this.currentState = this.states[name];
     this.currentState.enter();
-    console.log(this.currentState);
-  }
-  setJumpState(name) {
-    if (this.currentJumpState === this.jumpState[name]) {
-      return;
-    }
-    this.currentJumpState = this.jumpState[name];
-    if (name == 'jumping') {
-      this.currentJumpState.enter();
-    }
-    console.log(this.currentJumpState);
   }
 
   onSensorCollide({ bodyA, bodyB, pair }) {
@@ -153,7 +153,6 @@ export default class Player {
   }
 
   update() {
-    console.log(this.canJump);
     if (this.destroyed) return;
 
     const sprite = this.sprite;
@@ -173,15 +172,32 @@ export default class Player {
       this.setState('moveLeft');
     } else if (isRightKeyDown) {
       this.setState('moveRight');
+
+      // Don't let the player push things right if they in the air
     }
 
+    // Limit horizontal speed, without this the player's velocity would just keep increasing to
+    // absurd speeds. We don't want to touch the vertical velocity though, so that we don't
+    // interfere with gravity.
+    if (velocity.x > 7) sprite.setVelocityX(7);
+    else if (velocity.x < -7) sprite.setVelocityX(-7);
+
+    // --- Move the player vertically ---
+
     if (isJumpKeyDown && this.canJump && isOnGround) {
-      this.setJumpState('jumping');
+      sprite.setVelocityY(-11);
+
+      // Add a slight delay between jumps since the bottom sensor will still collide for a few
+      // frames after a jump is initiated
+      this.canJump = false;
+      this.jumpCooldownTimer = this.scene.time.addEvent({
+        delay: 250,
+        callback: () => (this.canJump = true),
+      });
     }
 
     // Update the animation/texture based on the state of the player's state
     if (isOnGround) {
-      this.setJumpState('notJumping');
       if (sprite.body.force.x !== 0) sprite.anims.play('player-run', true);
       else sprite.anims.play('player-idle', true);
     } else {

@@ -11,12 +11,17 @@ export default class MoveRight {
   }
 
   enter() {
-    this.player.play('left-walk');
-    sprite.setFlipX(false);
+    const moveForce = this.player.isTouching.ground ? 0.01 : 0.005;
+    this.player.sprite.anims.play('player-run');
+    this.player.sprite.setFlipX(false);
     const speed = 200;
-    this.player.sprite.setVelocity(speed, 0);
-    if (!(this.player.isInAir && this.isTouching.right)) {
-      sprite.applyForce({ x: moveForce, y: 0 });
+    this.player.sprite.setVelocityX(speed);
+    if (!(this.player.isTouching.ground && this.player.isTouching.right)) {
+      //this.player.sprite.applyForce({ x: moveForce, y: 0 });
     }
+    if (this.player.sprite.body.velocity.x > 7)
+      this.player.sprite.setVelocityX(7);
+    else if (this.player.sprite.body.velocity.x < -7)
+      this.player.sprite.setVelocityX(-7);
   }
 }

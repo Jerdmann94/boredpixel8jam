@@ -2,12 +2,14 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="5af200cc-0b78-49a8-a3aa-6dd04d328713" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/src/states/idle.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/states/jumping.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/states/moveLeft.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/states/moveRight.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/js/player2.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/states/notJumping.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/js/player.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/js/player.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/states/idle.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/states/idle.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/states/jumping.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/states/jumping.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/states/moveLeft.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/states/moveLeft.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/states/moveRight.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/states/moveRight.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
