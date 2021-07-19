@@ -1,30 +1,24 @@
 import Phaser from 'phaser';
 import MultiKey from './multi-key.js';
-import MoveRight from '../states/moveRight';
-import MoveLeft from '../states/moveLeft';
-import idle from '../states/idle.js';
+
+const RUN_VELOCITY = 2;
+const JUMP_VELOCITY = 8;
 
 export default class Player {
   constructor(scene, x, y) {
     this.scene = scene;
-    this.states = {
-      idle: new idle(this),
-      moveLeft: new MoveLeft(this),
-      moveRight: new MoveRight(this),
-    };
-    this.setState('idle');
 
     // Create the animations we need from the player spritesheet
     const anims = scene.anims;
     anims.create({
       key: 'player-idle',
-      frames: anims.generateFrameNumbers('player', { start: 0, end: 3 }),
+      frames: anims.generateFrameNumbers('player', { start: 0, end: 0 }),
       frameRate: 3,
       repeat: -1,
     });
     anims.create({
       key: 'player-run',
-      frames: anims.generateFrameNumbers('player', { start: 8, end: 15 }),
+      frames: anims.generateFrameNumbers('player', { start: 1, end: 3 }),
       frameRate: 12,
       repeat: -1,
     });
@@ -56,7 +50,7 @@ export default class Player {
     const { Body, Bodies } = Phaser.Physics.Matter.Matter; // Native Matter modules
     const { width: w, height: h } = this.sprite;
     const mainBody = Bodies.rectangle(0, 0, w * 0.6, h, {
-      chamfer: { radius: 10 },
+      chamfer: { radius: 5 },
     });
     this.sensors = {
       bottom: Bodies.rectangle(0, h * 0.5, w * 0.25, 2, { isSensor: true }),
@@ -71,12 +65,12 @@ export default class Player {
         this.sensors.right,
       ],
       frictionStatic: 0,
-      frictionAir: 0.02,
-      friction: 0.1,
+      frictionAir: 0.05,
+      friction: 0.3,
     });
     this.sprite
       .setExistingBody(compoundBody)
-      .setScale(2)
+      .setOrigin(0.5, 0.5)
       .setFixedRotation() // Sets inertia to infinity so the player can't rotate
       .setPosition(x, y);
 
@@ -111,15 +105,6 @@ export default class Player {
     this.scene.events.on('update', this.update, this);
     this.scene.events.once('shutdown', this.destroy, this);
     this.scene.events.once('destroy', this.destroy, this);
-  }
-
-  setState(name) {
-    if (this.currentState === this.states[name]) {
-      return;
-    }
-
-    this.currentState = this.states[name];
-    this.currentState.enter();
   }
 
   onSensorCollide({ bodyA, bodyB, pair }) {
@@ -166,26 +151,34 @@ export default class Player {
     // --- Move the player horizontally ---
 
     // Adjust the movement so that the player is slower in the air
-    const moveForce = isOnGround ? 0.01 : 0.005;
+    const moveForce = isOnGround ? 0.003 : 0.001;
 
     if (isLeftKeyDown) {
-      this.setState('moveLeft');
+      sprite.setFlipX(true);
+
+      // Don't let the player push things left if they in the air
+      if (!(isInAir && this.isTouching.left)) {
+        sprite.applyForce({ x: -moveForce, y: 0 });
+      }
     } else if (isRightKeyDown) {
-      this.setState('moveRight');
+      sprite.setFlipX(false);
 
       // Don't let the player push things right if they in the air
+      if (!(isInAir && this.isTouching.right)) {
+        sprite.applyForce({ x: moveForce, y: 0 });
+      }
     }
 
     // Limit horizontal speed, without this the player's velocity would just keep increasing to
     // absurd speeds. We don't want to touch the vertical velocity though, so that we don't
     // interfere with gravity.
-    if (velocity.x > 7) sprite.setVelocityX(7);
-    else if (velocity.x < -7) sprite.setVelocityX(-7);
+    if (velocity.x > RUN_VELOCITY) sprite.setVelocityX(RUN_VELOCITY);
+    else if (velocity.x < -RUN_VELOCITY) sprite.setVelocityX(-RUN_VELOCITY);
 
     // --- Move the player vertically ---
 
     if (isJumpKeyDown && this.canJump && isOnGround) {
-      sprite.setVelocityY(-11);
+      sprite.setVelocityY(-JUMP_VELOCITY);
 
       // Add a slight delay between jumps since the bottom sensor will still collide for a few
       // frames after a jump is initiated
@@ -202,7 +195,7 @@ export default class Player {
       else sprite.anims.play('player-idle', true);
     } else {
       sprite.anims.stop();
-      sprite.setTexture('player', 10);
+      sprite.setTexture('player', 5);
     }
   }
 
