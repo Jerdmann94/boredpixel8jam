@@ -1,21 +1,20 @@
-export default class idle {
-  // /** @type {Phaser.Physics.Arcade.Sprite} */
+export default class fireIdle {
   player;
-  //
-  // /**
-  //  * @param {Phaser.Physics.Arcade.Sprite} player
-  //  */
-  constructor(player) {
-    this.player = player;
-  }
+  x;
+  y;
 
+  constructor(player, x, y) {
+    this.player = player;
+    this.x = x;
+    this.y = y;
+  }
   onStateEnter() {
     this.player.sprite.setVelocityX(0);
-    this.player.sprite.anims.play(`player-idle`);
+    this.player.sprite.anims.play(`player-idle-fire`);
   }
 
   onStateUpdate() {
-    this.player.sprite.anims.play(`player-idle`);
+    this.player.sprite.anims.play(`player-run-fire`);
     const sprite = this.player.sprite;
     const velocity = sprite.body.velocity;
     const isRightKeyDown = this.player.rightInput.isDown();
@@ -28,9 +27,7 @@ export default class idle {
     } else {
       // console.log(this.player.jumpInput.isDown()&& this.player.canJump && this.player.isTouching.ground)
     }
-    if (this.player.jumpInput.isDown()) {
-      console.log(this.player.isTouching.ground);
-    }
+
     if (
       this.player.jumpInput.isDown() &&
       this.player.canJump &&
@@ -40,5 +37,5 @@ export default class idle {
     }
   }
 
-  onStateExit() {}
+  onStateExt() {}
 }
