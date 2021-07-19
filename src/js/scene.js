@@ -4,14 +4,21 @@ import Player from './player';
 
 import map from '../assets/shortermap.json';
 import tiles from '../assets/temp-tiles.png';
-import shrek from '../assets/shrekatlas.png';
+import gobdefault from '../assets/goblinsheet.png';
 import Slopes from 'phaser-slopes';
+import shrek from '../assets/shrekatlas.png';
 
 export default class Scene extends Phaser.Scene {
   preload() {
     this.load.tilemapTiledJSON('map', map);
     this.load.image('tiles', tiles);
-    this.load.spritesheet('player', shrek, {
+    this.load.spritesheet('player', gobdefault, {
+      frameWidth: 32,
+      frameHeight: 32,
+      margin: 0,
+      spacing: 0,
+    });
+    this.load.spritesheet('shrek', shrek, {
       frameWidth: 16,
       frameHeight: 32,
       margin: 0,
