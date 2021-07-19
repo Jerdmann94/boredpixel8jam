@@ -3,4 +3,7 @@ export default class notJumping {
   constructor(player) {
     this.player = player;
   }
+  onStateEnter() {}
+  onStateUpdate() {}
+  onStateExt() {}
 }

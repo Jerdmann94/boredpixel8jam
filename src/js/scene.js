@@ -5,6 +5,7 @@ import Player from './player';
 import map from '../assets/shortermap.json';
 import tiles from '../assets/temp-tiles.png';
 import shrek from '../assets/shrekatlas.png';
+import Slopes from 'phaser-slopes';
 
 export default class Scene extends Phaser.Scene {
   preload() {
@@ -16,6 +17,7 @@ export default class Scene extends Phaser.Scene {
       margin: 0,
       spacing: 0,
     });
+    this.load.scenePlugin('Slopes', Slopes);
   }
 
   create() {

@@ -35,6 +35,7 @@
   },
   "dependencies": {
     "phaser": "^3.55.2",
-    "phaser-matter-collision-plugin": "^0.10.2"
+    "phaser-matter-collision-plugin": "^0.10.2",
+    "phaser-slopes": "^0.1.1"
   }
 }

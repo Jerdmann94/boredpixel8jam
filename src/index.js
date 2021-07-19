@@ -14,12 +14,12 @@ const config = {
   physics: {
     default: 'matter',
     matter: {
-      // debug: {
-      //   showBody: true,
-      //   showStaticBody: true,
-      //   showBounds: true,
-      //   boundsColor: 0xffffff,
-      // },
+      debug: {
+        showBody: true,
+        showStaticBody: true,
+        showBounds: true,
+        boundsColor: 0xffffff,
+      },
     },
   },
   plugins: {
