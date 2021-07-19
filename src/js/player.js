@@ -6,6 +6,8 @@ import idle from '../states/idle.js';
 import jumping from '../states/jumping';
 import notJumping from '../states/notJumping';
 
+const RUN_VELOCITY = 2;
+const JUMP_VELOCITY = 8;
 export default class Player {
   constructor(scene, x, y) {
     this.scene = scene;
@@ -14,13 +16,13 @@ export default class Player {
     const anims = scene.anims;
     anims.create({
       key: 'player-idle',
-      frames: anims.generateFrameNumbers('player', { start: 0, end: 3 }),
+      frames: anims.generateFrameNumbers('player', { start: 0, end: 0 }),
       frameRate: 3,
       repeat: -1,
     });
     anims.create({
       key: 'player-run',
-      frames: anims.generateFrameNumbers('player', { start: 8, end: 15 }),
+      frames: anims.generateFrameNumbers('player', { start: 1, end: 3 }),
       frameRate: 12,
       repeat: -1,
     });
@@ -34,7 +36,7 @@ export default class Player {
       chamfer: { radius: 10 },
     });
     this.sensors = {
-      bottom: Bodies.rectangle(8, h * 0.5 + 16, w * 0.25, 2, {
+      bottom: Bodies.rectangle(8, h * 0.5 + 15, w * 0.25, 2, {
         isSensor: true,
       }),
       left: Bodies.rectangle(-w * 0.35 + 8, 16, 2, h * 0.5, { isSensor: true }),
@@ -53,7 +55,7 @@ export default class Player {
     });
     this.sprite
       .setExistingBody(compoundBody)
-      .setScale(2)
+      .setOrigin(0.5, 0.5)
       .setFixedRotation() // Sets inertia to infinity so the player can't rotate
       .setPosition(x, y);
 
@@ -108,7 +110,7 @@ export default class Player {
     }
 
     this.currentState = this.states[name];
-    this.currentState.enter();
+    this.currentState.onStateEnter();
     console.log(this.currentState);
   }
   setJumpState(name) {
@@ -117,9 +119,8 @@ export default class Player {
     }
     this.currentJumpState = this.jumpState[name];
     if (name == 'jumping') {
-      this.currentJumpState.enter();
+      this.currentJumpState.onStateEnter();
     }
-    console.log(this.currentJumpState);
   }
 
   onSensorCollide({ bodyA, bodyB, pair }) {
@@ -153,41 +154,10 @@ export default class Player {
   }
 
   update() {
-    console.log(this.canJump);
+    this.currentState.onStateUpdate();
+    this.currentJumpState.onStateUpdate();
+
     if (this.destroyed) return;
-
-    const sprite = this.sprite;
-    const velocity = sprite.body.velocity;
-    const isRightKeyDown = this.rightInput.isDown();
-    const isLeftKeyDown = this.leftInput.isDown();
-    const isJumpKeyDown = this.jumpInput.isDown();
-    const isOnGround = this.isTouching.ground;
-    const isInAir = !isOnGround;
-
-    // --- Move the player horizontally ---
-
-    // Adjust the movement so that the player is slower in the air
-    const moveForce = isOnGround ? 0.01 : 0.005;
-
-    if (isLeftKeyDown) {
-      this.setState('moveLeft');
-    } else if (isRightKeyDown) {
-      this.setState('moveRight');
-    }
-
-    if (isJumpKeyDown && this.canJump && isOnGround) {
-      this.setJumpState('jumping');
-    }
-
-    // Update the animation/texture based on the state of the player's state
-    if (isOnGround) {
-      this.setJumpState('notJumping');
-      if (sprite.body.force.x !== 0) sprite.anims.play('player-run', true);
-      else sprite.anims.play('player-idle', true);
-    } else {
-      sprite.anims.stop();
-      sprite.setTexture('player', 5);
-    }
   }
 
   destroy() {
