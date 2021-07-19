@@ -23,7 +23,7 @@ export default class MoveRight {
     if (isLeftKeyDown) {
       this.player.setState('moveLeft');
     } else if (isRightKeyDown) {
-      const speed = 1;
+      const speed = 1.6;
       this.player.sprite.setVelocityX(speed);
     } else {
       this.player.setState('idle');

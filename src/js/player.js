@@ -6,6 +6,8 @@ import idle from '../states/idle.js';
 import jumping from '../states/jumping';
 import notJumping from '../states/notJumping';
 
+const RUN_VELOCITY = 2;
+const JUMP_VELOCITY = 8;
 export default class Player {
   constructor(scene, x, y) {
     this.scene = scene;
@@ -20,7 +22,7 @@ export default class Player {
     });
     anims.create({
       key: 'player-run',
-      frames: anims.generateFrameNumbers('player', { start: 8, end: 15 }),
+      frames: anims.generateFrameNumbers('player', { start: 1, end: 3 }),
       frameRate: 12,
       repeat: -1,
     });
@@ -53,7 +55,7 @@ export default class Player {
     });
     this.sprite
       .setExistingBody(compoundBody)
-      .setScale(2)
+      .setOrigin(0.5, 0.5)
       .setFixedRotation() // Sets inertia to infinity so the player can't rotate
       .setPosition(x, y);
 

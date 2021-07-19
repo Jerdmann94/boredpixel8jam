@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 
-import Player from './player2';
+import Player from './player';
 
 import map from '../assets/shortermap.json';
 import tiles from '../assets/temp-tiles.png';

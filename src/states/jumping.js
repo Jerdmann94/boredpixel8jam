@@ -11,7 +11,7 @@ export default class jumping {
   }
 
   onStateEnter() {
-    this.player.sprite.setVelocityY(-6);
+    this.player.sprite.setVelocityY(-8);
     this.player.canJump = false;
     this.player.jumpCooldownTimer = this.player.scene.time.addEvent({
       delay: 250,

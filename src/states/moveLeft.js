@@ -32,7 +32,7 @@ export default class MoveLeft {
     const isOnGround = this.player.isTouching.ground;
 
     if (isLeftKeyDown) {
-      const speed = 1;
+      const speed = 1.6;
       this.player.sprite.setVelocityX(-speed);
     } else if (isRightKeyDown) {
       this.player.setState('moveRight');
