@@ -7,7 +7,8 @@ import tiles from '../assets/temp-tiles.png';
 import gobdefault from '../assets/goblinsheet.png';
 import Slopes from 'phaser-slopes';
 import shrek from '../assets/shrekatlas.png';
-
+import { sceneEvents } from '../lib/EventsCenter';
+import _ from 'lodash';
 export default class Scene extends Phaser.Scene {
   preload() {
     this.load.tilemapTiledJSON('map', map);
@@ -46,10 +47,41 @@ export default class Scene extends Phaser.Scene {
     this.cameras.main.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
     this.matter.world.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
 
+    sceneEvents.once(
+      'playerDeath',
+      function () {
+        this.playerDeath();
+      },
+      this
+    );
+
+    sceneEvents.on(
+      'changedPlayerBody',
+      _.debounce(this.setPlayerCollision, this, 2000, {
+        leading: true,
+        trailing: false,
+      }),
+      this
+    );
+  }
+
+  playerDeath() {
+    this.cameras.main.fade(250, 0, 0, 0);
+    this.cameras.main.on(
+      'camerafadeoutcomplete',
+      function () {
+        this.scene.restart();
+      },
+      this
+    );
+  }
+  setPlayerCollision(player) {
+    console.log(player);
+    console.log(this);
     this.unsubscribePlayerCollide = this.matterCollision.addOnCollideStart({
-      objectA: this.player.sprite,
-      callback: this.player.currentMacroState.onPlayerCollide,
-      context: this,
+      objectA: player.sprite,
+      callback: this.player.onPlayerCollide,
+      context: this.player,
     });
   }
 }

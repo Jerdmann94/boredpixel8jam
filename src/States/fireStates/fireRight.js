@@ -29,5 +29,5 @@ export default class fireRight {
     }
   }
 
-  onStateExt() {}
+  onStateExit() {}
 }

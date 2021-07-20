@@ -49,5 +49,5 @@ export default class MoveRight {
     //   sprite.setTexture('player', 5);
     // }
   }
-  onStateExt() {}
+  onStateExit() {}
 }

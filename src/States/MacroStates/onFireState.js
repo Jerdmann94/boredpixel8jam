@@ -2,6 +2,7 @@ import fireLeft from '../fireStates/fireLeft';
 import fireRight from '../fireStates/fireRight';
 import fireNotJumping from '../fireStates/fireNotJumping';
 import fireIdle from '../fireStates/fireIdle';
+import Phaser from 'phaser';
 
 export default class onFireState {
   // /** @type {Phaser.Physics.Arcade.Sprite} */
@@ -21,7 +22,7 @@ export default class onFireState {
       moveRight: new fireRight(player, x, y),
     };
     this.jumpStates = {
-      fireNotJumping,
+      fireNotJumping: new fireNotJumping(player, x, y),
     };
   }
   onStateEnter() {
@@ -41,10 +42,12 @@ export default class onFireState {
 
     this.player.anims = anims;
     this.player.createSprite('player', this.x, this.y);
+
     this.player.states = this.states;
     this.player.jumpStates = this.jumpStates;
+    console.log(this.player.jumpStates);
     this.player.setState('fireIdle');
-    this.player.setJumpState('notJumping');
+    this.player.setJumpState('fireNotJumping');
   }
   onStateUpdate() {
     this.player.currentState.onStateUpdate();

@@ -50,5 +50,5 @@ export default class MoveLeft {
     // }
   }
 
-  onStateExt() {}
+  onStateExit() {}
 }

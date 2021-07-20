@@ -5,5 +5,5 @@ export default class notJumping {
   }
   onStateEnter() {}
   onStateUpdate() {}
-  onStateExt() {}
+  onStateExit() {}
 }

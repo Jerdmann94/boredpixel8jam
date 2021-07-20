@@ -1,4 +1,5 @@
-export default class idle {
+import Phaser from 'phaser';
+export default class bounceLeft {
   // /** @type {Phaser.Physics.Arcade.Sprite} */
   player;
   //
@@ -10,35 +11,25 @@ export default class idle {
   }
 
   onStateEnter() {
-    this.player.sprite.setVelocityX(0);
-    this.player.sprite.anims.play(`player-idle`);
+    this.player.sprite.anims.play('player-run');
+    this.player.sprite.setFlipX(true);
   }
 
   onStateUpdate() {
-    this.player.sprite.anims.play(`player-idle`);
     const sprite = this.player.sprite;
     const velocity = sprite.body.velocity;
     const isRightKeyDown = this.player.rightInput.isDown();
     const isLeftKeyDown = this.player.leftInput.isDown();
+    const isJumpKeyDown = this.player.jumpInput.isDown();
     const isOnGround = this.player.isTouching.ground;
 
     if (isLeftKeyDown) {
-      this.player.setState('moveLeft');
+      const speed = 1.6;
+      this.player.sprite.setVelocityX(-speed);
     } else if (isRightKeyDown) {
       this.player.setState('moveRight');
     } else {
-      // console.log(this.player.jumpInput.isDown()&& this.player.canJump && this.player.isTouching.ground)
-    }
-
-    if (
-      this.player.jumpInput.isDown() &&
-      this.player.canJump &&
-      this.player.isTouching.ground
-    ) {
-      this.player.setJumpState('jumping');
-    }
-    if (isOnGround) {
-      this.player.setJumpState('notJumping');
+      this.player.setState('bounceIdle');
     }
   }
 
