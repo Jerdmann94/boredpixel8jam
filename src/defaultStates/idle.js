@@ -20,6 +20,7 @@ export default class idle {
     const velocity = sprite.body.velocity;
     const isRightKeyDown = this.player.rightInput.isDown();
     const isLeftKeyDown = this.player.leftInput.isDown();
+    const isOnGround = this.player.isTouching.ground;
 
     if (isLeftKeyDown) {
       this.player.setState('moveLeft');
@@ -35,6 +36,9 @@ export default class idle {
       this.player.isTouching.ground
     ) {
       this.player.setJumpState('jumping');
+    }
+    if (isOnGround) {
+      this.player.setJumpState('notJumping');
     }
   }
 

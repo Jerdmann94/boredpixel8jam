@@ -27,14 +27,6 @@ export default class fireIdle {
     } else {
       // console.log(this.player.jumpInput.isDown()&& this.player.canJump && this.player.isTouching.ground)
     }
-
-    if (
-      this.player.jumpInput.isDown() &&
-      this.player.canJump &&
-      this.player.isTouching.ground
-    ) {
-      this.player.setJumpState('jumping');
-    }
   }
 
   onStateExt() {}
