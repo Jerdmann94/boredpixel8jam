@@ -11,14 +11,6 @@ export default class MoveLeft {
   }
 
   onStateEnter() {
-    //this.player.sprite.anims.play('player-run');
-    // this.player.sprite.setFlipX(true);
-    //  const speed = 200;
-    //  this.player.sprite.setVelocityX(-speed);
-    //  if (this.player.sprite.body.velocity.x > 7)
-    //    this.player.sprite.setVelocityX(7);
-    //  else if (this.player.sprite.body.velocity.x < -7)
-    //    this.player.sprite.setVelocityX(-7);
     this.player.sprite.anims.play('player-run');
     this.player.sprite.setFlipX(true);
   }

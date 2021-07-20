@@ -111,13 +111,12 @@ export default class Player {
     this.currentMacroState.onStateEnter();
   }
   setState(name) {
-    this.CreateMacroStates();
     if (this.currentState === this.states[name]) {
       return;
     }
 
     this.currentState = this.states[name];
-    //console.log(this.currentState);
+    console.log(this.currentState);
 
     this.currentState.onStateEnter();
   }
@@ -170,15 +169,13 @@ export default class Player {
     if (this.destroyed) return;
 
     if (this.test.isDown()) {
-      this.CreateMacroStates();
       this.setMacroState('onFire');
     }
     if (this.return.isDown()) {
-      this.CreateMacroStates();
       this.setMacroState('default');
     }
   }
-  CreateMacroStates() {}
+
   createSprite(key, x, y) {
     if (this.sprite) {
       this.temp = this.sprite;

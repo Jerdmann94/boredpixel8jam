@@ -5,12 +5,14 @@ export default class defaultState {
   player;
   x;
   y;
+
   constructor(player, x, y) {
     this.player = player;
     this.x = x;
     this.y = y;
     console.log(this.x, this.y);
   }
+
   onStateEnter() {
     console.log('enter default');
     const anims = this.player.scene.anims;
@@ -36,63 +38,49 @@ export default class defaultState {
 
     this.player.createSprite('player', this.x, this.y);
 
-    // Create the physics-based sprite that we will move around and animate
-    //this.sprite = this.player.scene.matter.add.sprite(0, 0, 'player', 0);
-
-    // const { Body, Bodies } = Phaser.Physics.Matter.Matter; // Native Matter modules
-    // const { width: w, height: h } = this.sprite;
-    // const mainBody = Bodies.rectangle(8, 16, w * 0.6, h * 0.9, {
-    //     chamfer: { radius: 10 },
-    // });
-    // this.sensors = {
-    //     bottom: Bodies.rectangle(8, h * 0.5 + 15, w * 0.25, 2, {
-    //         isSensor: true,
-    //     }),
-    //     left: Bodies.rectangle(-w * 0.35 + 8, 16, 2, h * 0.5, { isSensor: true }),
-    //     right: Bodies.rectangle(w * 0.35 + 8, 16, 2, h * 0.5, { isSensor: true }),
-    // };
-    // const compoundBody = Phaser.Physics.Matter.Matter.Body.create({
-    //     parts: [
-    //         mainBody,
-    //         this.sensors.bottom,
-    //         this.sensors.left,
-    //         this.sensors.right,
-    //     ],
-    //     frictionStatic: 0,
-    //     frictionAir: 0.02,
-    //     friction: 0.1,
-    // });
-    // this.sprite
-    //     .setExistingBody(compoundBody)
-    //     .setOrigin(0.5, 0.5)
-    //     .setFixedRotation() // Sets inertia to infinity so the player can't rotate
-    //     .setPosition(this.x, this.y);
-    // this.player.sprite = this.sprite;
-    //
-    // // Track which sensors are touching something
-    // this.player.sprite.isTouching = { left: false, right: false, ground: false };
-    //
-    // // Jumping is going to have a cooldown
-    // this.player.canJump = true;
-    // this.player.jumpCooldownTimer = null;
-    //
-    // // Before matter's update, reset the player's count of what surfaces it is touching.
-    // this.player.scene.matter.world.on('beforeupdate', this.player.resetTouching, this);
-    //
-    // this.player.scene.matterCollision.addOnCollideStart({
-    //     objectA: [this.sensors.bottom, this.sensors.left, this.sensors.right],
-    //     callback: this.player.onSensorCollide,
-    //     context: this,
-    // });
-    // this.player.scene.matterCollision.addOnCollideActive({
-    //     objectA: [this.sensors.bottom, this.sensors.left, this.sensors.right],
-    //     callback: this.player.onSensorCollide,
-    //     context: this,
-    // });
+    //SETTING SCENE'S PLAYER TO THIS PLAYER FOR COLLISIONS
+    this.player.scene.unsubscribePlayerCollide =
+      this.player.scene.matterCollision.addOnCollideStart({
+        objectA: this.player.sprite,
+        callback: this.player.currentMacroState.onPlayerCollide,
+        context: this.player.scene,
+      });
   }
+
   onStateUpdate() {
     this.player.currentState.onStateUpdate();
     this.player.currentJumpState.onStateUpdate();
   }
+
   onStateExit() {}
+
+  //COLLISION FUNCTION
+  onPlayerCollide({ gameObjectB }) {
+    if (!gameObjectB || !(gameObjectB instanceof Phaser.Tilemaps.Tile)) return;
+
+    console.log('colliding with stuff');
+    const tile = gameObjectB;
+
+    // Check the tile property set in Tiled (you could also just check the index if you aren't using
+    // Tiled in your game)
+    if (tile.properties.lethal) {
+      console.log('inside tile lethal');
+      // Unsubscribe from collision events so that this logic is run only once
+      this.player.scene.unsubscribePlayerCollide();
+
+      this.player.freeze();
+      this.player.scene.cameras.main.fade(250, 0, 0, 0);
+      this.player.scene.cameras.main.on(
+        'camerafadeoutcomplete',
+        function () {
+          this.scene.restart();
+          console.log('scene should be restarting');
+        },
+        this
+      );
+      // const cam = this.player.scene.cameras.main;
+      //
+      // cam.once('camerafadeoutcomplete', () => this.player.scene.restart());
+    }
+  }
 }

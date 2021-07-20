@@ -48,26 +48,8 @@ export default class Scene extends Phaser.Scene {
 
     this.unsubscribePlayerCollide = this.matterCollision.addOnCollideStart({
       objectA: this.player.sprite,
-      callback: this.onPlayerCollide,
+      callback: this.player.currentMacroState.onPlayerCollide,
       context: this,
     });
-  }
-
-  onPlayerCollide({ gameObjectB }) {
-    if (!gameObjectB || !(gameObjectB instanceof Phaser.Tilemaps.Tile)) return;
-
-    const tile = gameObjectB;
-
-    // Check the tile property set in Tiled (you could also just check the index if you aren't using
-    // Tiled in your game)
-    if (tile.properties.lethal) {
-      // Unsubscribe from collision events so that this logic is run only once
-      this.unsubscribePlayerCollide();
-
-      this.player.freeze();
-      const cam = this.cameras.main;
-      cam.fade(250, 0, 0, 0);
-      cam.once('camerafadeoutcomplete', () => this.scene.restart());
-    }
   }
 }
