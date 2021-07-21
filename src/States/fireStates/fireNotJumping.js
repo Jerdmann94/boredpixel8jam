@@ -12,5 +12,5 @@ export default class fireNotJumping {
 
   onStateUpdate() {}
 
-  onStateExt() {}
+  onStateExit() {}
 }

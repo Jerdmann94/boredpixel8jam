@@ -1,24 +1,23 @@
-export default class fireIdle {
+export default class bounceIdle {
+  // /** @type {Phaser.Physics.Arcade.Sprite} */
   player;
-  x;
-  y;
 
-  constructor(player, x, y) {
+  constructor(player) {
     this.player = player;
-    this.x = x;
-    this.y = y;
   }
+
   onStateEnter() {
     this.player.sprite.setVelocityX(0);
-    this.player.sprite.anims.play(`player-idle-fire`);
+    this.player.sprite.anims.play(`player-idle`);
   }
 
   onStateUpdate() {
-    this.player.sprite.anims.play(`player-run-fire`);
+    this.player.sprite.anims.play(`player-idle`);
     const sprite = this.player.sprite;
     const velocity = sprite.body.velocity;
     const isRightKeyDown = this.player.rightInput.isDown();
     const isLeftKeyDown = this.player.leftInput.isDown();
+    const isOnGround = this.player.isTouching.ground;
 
     if (isLeftKeyDown) {
       this.player.setState('moveLeft');
@@ -29,5 +28,5 @@ export default class fireIdle {
     }
   }
 
-  onStateExt() {}
+  onStateExit() {}
 }

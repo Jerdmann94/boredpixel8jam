@@ -31,5 +31,5 @@ export default class fireLeft {
     }
   }
 
-  onStateExt() {}
+  onStateExit() {}
 }

@@ -18,9 +18,9 @@ export default class jumping {
       delay: 250,
       callback: () => (this.player.canJump = true),
     });
-    console.log('jump state entered');
+    //console.log('jump state entered');
   }
 
   onStateUpdate() {}
-  onStateExt() {}
+  onStateExit() {}
 }

@@ -1,114 +1,66 @@
 import Phaser from 'phaser';
 import MultiKey from './multi-key.js';
-import MoveRight from '../defaultStates/moveRight';
-import MoveLeft from '../defaultStates/moveLeft';
-import idle from '../defaultStates/idle.js';
-import jumping from '../defaultStates/jumping';
-import notJumping from '../defaultStates/notJumping';
-import defaultState from '../MacroStates/defaultState';
-import onFireState from '../MacroStates/onFireState';
-import logger from 'phaser-matter-collision-plugin/src/logger';
+
+import defaultState from '../States/MacroStates/defaultState';
+import onFireState from '../States/MacroStates/onFireState';
+
+import bouncingState from '../States/MacroStates/bouncingState';
+import bouncing from '../States/bouncingStates/bouncing';
+import { sceneEvents } from '../lib/EventsCenter';
 
 export default class Player {
   temp = null;
   x;
   y;
+  jumpStates;
+  states;
+  currentJumpState;
+
   constructor(scene, x, y) {
     this.scene = scene;
+    this.x = x;
+    this.y = y;
 
     this.macroStates = {
       default: new defaultState(this, x, y),
       onFire: new onFireState(this, x, y),
+      bouncing: new bouncingState(this, x, y),
     };
 
     this.setMacroState('default');
 
-    // Create the physics-based sprite that we will move around and animate
-    // this.sprite = scene.matter.add.sprite(0, 0, 'player', 0);
-    //
-    // const { Body, Bodies } = Phaser.Physics.Matter.Matter; // Native Matter modules
-    // const { width: w, height: h } = this.sprite;
-    // const mainBody = Bodies.rectangle(8, 16, w * 0.6, h * 0.9, {
-    //   chamfer: { radius: 10 },
-    // });
-    // this.sensors = {
-    //   bottom: Bodies.rectangle(8, h * 0.5 + 15, w * 0.25, 2, {
-    //     isSensor: true,
-    //   }),
-    //   left: Bodies.rectangle(-w * 0.35 + 8, 16, 2, h * 0.5, { isSensor: true }),
-    //   right: Bodies.rectangle(w * 0.35 + 8, 16, 2, h * 0.5, { isSensor: true }),
-    // };
-    // const compoundBody = Body.create({
-    //   parts: [
-    //     mainBody,
-    //     this.sensors.bottom,
-    //     this.sensors.left,
-    //     this.sensors.right,
-    //   ],
-    //   frictionStatic: 0,
-    //   frictionAir: 0.02,
-    //   friction: 0.1,
-    // });
-    // this.sprite
-    //   .setExistingBody(compoundBody)
-    //   .setOrigin(0.5, 0.5)
-    //   .setFixedRotation() // Sets inertia to infinity so the player can't rotate
-    //   .setPosition(x, y);
-    //
-    // // Track which sensors are touching something
-    // this.isTouching = { left: false, right: false, ground: false };
-    //
-    // // Jumping is going to have a cooldown
-    // this.canJump = true;
-    // this.jumpCooldownTimer = null;
-    //
-    // // Before matter's update, reset the player's count of what surfaces it is touching.
-    // scene.matter.world.on('beforeupdate', this.resetTouching, this);
-    //
-    // scene.matterCollision.addOnCollideStart({
-    //   objectA: [this.sensors.bottom, this.sensors.left, this.sensors.right],
-    //   callback: this.onSensorCollide,
-    //   context: this,
-    // });
-    // scene.matterCollision.addOnCollideActive({
-    //   objectA: [this.sensors.bottom, this.sensors.left, this.sensors.right],
-    //   callback: this.onSensorCollide,
-    //   context: this,
-    //});
-
-    // Track the keys
-    const { LEFT, RIGHT, UP, A, D, W, S } = Phaser.Input.Keyboard.KeyCodes;
+    const { LEFT, RIGHT, UP, A, D, W, S, V, X } =
+      Phaser.Input.Keyboard.KeyCodes;
     this.leftInput = new MultiKey(scene, [LEFT, A]);
     this.rightInput = new MultiKey(scene, [RIGHT, D]);
     this.jumpInput = new MultiKey(scene, [UP, W]);
     this.test = new MultiKey(scene, [S]);
+    this.bouncy = new MultiKey(scene, [V]);
+    this.return = new MultiKey(scene, [X]);
 
     this.destroyed = false;
     this.scene.events.on('update', this.update, this);
     this.scene.events.once('shutdown', this.destroy, this);
     this.scene.events.once('destroy', this.destroy, this);
 
-    this.states = {
-      idle: new idle(this),
-      moveLeft: new MoveLeft(this),
-      moveRight: new MoveRight(this),
-    };
-    this.jumpState = {
-      jumping: new jumping(this),
-      notJumping: new notJumping(this),
-    };
-    this.setState('idle');
-    this.setJumpState('notJumping');
+    sceneEvents.emit('changedPlayerBody', this);
   }
 
   setMacroState(name) {
     if (this.currentMacroState === this.macroStates[name]) {
       return;
     }
+    this.macroStates = {
+      default: new defaultState(this, this.x, this.y),
+      onFire: new onFireState(this, this.x, this.y),
+      bouncing: new bouncingState(this, this.x, this.y),
+    };
 
     this.currentMacroState = this.macroStates[name];
-    //console.log(this.currentMacroState);
+    // console.log(this.currentMacroState);
     this.currentMacroState.onStateEnter();
+    //console.log(this)
+    sceneEvents.emit('changedPlayerBody', this);
   }
   setState(name) {
     if (this.currentState === this.states[name]) {
@@ -116,18 +68,20 @@ export default class Player {
     }
 
     this.currentState = this.states[name];
-    console.log(this.currentState);
+    // console.log(this.currentState);
 
     this.currentState.onStateEnter();
   }
   setJumpState(name) {
-    if (this.currentJumpState === this.jumpState[name]) {
+    if (this.currentJumpState === this.jumpStates[name]) {
       return;
     }
-    this.currentJumpState = this.jumpState[name];
-    if (name == 'jumping') {
-      this.currentJumpState.onStateEnter();
+    if (this.currentJumpState) {
+      this.currentJumpState.onStateExit();
     }
+    this.currentJumpState = this.jumpStates[name];
+
+    this.currentJumpState.onStateEnter();
   }
 
   onSensorCollide({ bodyA, bodyB, pair }) {
@@ -161,6 +115,9 @@ export default class Player {
   }
 
   update() {
+    if (!this.sprite.body) {
+      console.log('BODY IS GONE');
+    }
     this.currentMacroState.onStateUpdate();
 
     this.x = this.sprite.body.position.x;
@@ -174,10 +131,14 @@ export default class Player {
     if (this.return.isDown()) {
       this.setMacroState('default');
     }
+    if (this.bouncy.isDown()) {
+      this.setMacroState('bouncing');
+    }
   }
 
   createSprite(key, x, y) {
     if (this.sprite) {
+      console.log(this.sprite);
       this.temp = this.sprite;
       this.sprite = this.scene.matter.add.sprite(
         this.temp.body.position.x,
@@ -188,10 +149,8 @@ export default class Player {
       this.scene.cameras.main.startFollow(this.sprite);
       //this.temp.setActive(false).setVisible(false);
       //this.temp.body.destroy();
-      console.log('inside create sprite', this.x, this.y);
     } else {
       this.sprite = this.scene.matter.add.sprite(x, y, key, 0);
-      console.log('inside starting spawn');
     }
 
     const { Body, Bodies } = Phaser.Physics.Matter.Matter; // Native Matter modules
@@ -264,18 +223,6 @@ export default class Player {
       this.temp.setActive(false).setVisible(false);
       this.temp.body.destroy();
     }
-
-    this.states = {
-      idle: new idle(this),
-      moveLeft: new MoveLeft(this),
-      moveRight: new MoveRight(this),
-    };
-    this.jumpState = {
-      jumping: new jumping(this),
-      notJumping: new notJumping(this),
-    };
-    this.setState('idle');
-    this.setJumpState('notJumping');
   }
   destroy() {
     // Clean up any listeners that might trigger events after the player is officially destroyed
@@ -296,5 +243,33 @@ export default class Player {
 
     this.destroyed = true;
     this.sprite.destroy();
+  }
+  onPlayerCollide({ gameObjectB }) {
+    if (!gameObjectB || !(gameObjectB instanceof Phaser.Tilemaps.Tile)) return;
+    const tile = gameObjectB;
+    if (tile.properties.lethal) {
+      this.scene.unsubscribePlayerCollide();
+      console.log(this);
+      //this.freeze();
+      this.sprite.setStatic(true);
+      sceneEvents.emit('playerDeath');
+    }
+
+    //DEALING WITH BOUNCING STATE ON OBJECTS
+    // if (this.currentJumpState instanceof bouncing){
+    //   this.sprite.setVelocityY(-8);
+    //   this.player.scene.time.addEvent({
+    //     delay: 250,
+    //     callback: () => (this.check = true,console.log('callback')),
+    //   });
+    //   if(this.check){
+    //     this.counter += 1;
+    //     this.check= false;
+    //     console.log();
+    //   }
+    //   if(this.counter > 3) {
+    //     this.player.setMacroState('default')
+    //   }
+    // }
   }
 }
