@@ -43,7 +43,7 @@ export default class Player {
     this.scene.events.once('shutdown', this.destroy, this);
     this.scene.events.once('destroy', this.destroy, this);
 
-    sceneEvents.emit('changedPlayerBody', this);
+    //sceneEvents.emit('changedPlayerBody', this);
   }
 
   setMacroState(name) {
@@ -57,9 +57,9 @@ export default class Player {
     };
 
     this.currentMacroState = this.macroStates[name];
-    // console.log(this.currentMacroState);
+    //console.log(this.currentMacroState);
     this.currentMacroState.onStateEnter();
-    //console.log(this)
+    // console.log(this)
     sceneEvents.emit('changedPlayerBody', this);
   }
   setState(name) {
@@ -68,7 +68,7 @@ export default class Player {
     }
 
     this.currentState = this.states[name];
-    // console.log(this.currentState);
+    //console.log(this.currentState);
 
     this.currentState.onStateEnter();
   }
@@ -80,7 +80,7 @@ export default class Player {
       this.currentJumpState.onStateExit();
     }
     this.currentJumpState = this.jumpStates[name];
-
+    //console.log(this.currentJumpState);
     this.currentJumpState.onStateEnter();
   }
 
@@ -138,7 +138,7 @@ export default class Player {
 
   createSprite(key, x, y) {
     if (this.sprite) {
-      console.log(this.sprite);
+      //console.log(this.sprite);
       this.temp = this.sprite;
       this.sprite = this.scene.matter.add.sprite(
         this.temp.body.position.x,
@@ -155,17 +155,17 @@ export default class Player {
 
     const { Body, Bodies } = Phaser.Physics.Matter.Matter; // Native Matter modules
     const { width: w, height: h } = this.sprite;
-    const mainBody = Bodies.rectangle(8, 15, w * 0.4, h * 0.8, {
-      chamfer: { radius: 15 },
+    const mainBody = Bodies.rectangle(8, 15, w * 0.3, h * 0.7, {
+      chamfer: { radius: 8 },
     });
     this.sensors = {
-      bottom: Bodies.rectangle(8, h * 0.5 + 12, w * 0.25, 2, {
+      bottom: Bodies.rectangle(8, h * 0.5 - 2 + 12, w * 0.25, 2, {
         isSensor: true,
       }),
-      left: Bodies.rectangle(-w * 0.35 + 12, 16, 2, h * 0.5, {
+      left: Bodies.rectangle(-w * 0.35 + 13, 16, 2, h * 0.5, {
         isSensor: true,
       }),
-      right: Bodies.rectangle(w * 0.35 + 4, 16, 2, h * 0.5, { isSensor: true }),
+      right: Bodies.rectangle(w * 0.35 + 3, 16, 2, h * 0.5, { isSensor: true }),
     };
     const compoundBody = Body.create({
       parts: [
@@ -180,7 +180,7 @@ export default class Player {
     });
     this.sprite
       .setExistingBody(compoundBody)
-      .setOrigin(0.5, 0.5)
+      .setOrigin(0.5, 0.6)
       .setFixedRotation() // Sets inertia to infinity so the player can't rotate
       .setPosition(x, y);
 
@@ -223,6 +223,7 @@ export default class Player {
       this.temp.setActive(false).setVisible(false);
       this.temp.body.destroy();
     }
+    //console.log(this)
   }
   destroy() {
     // Clean up any listeners that might trigger events after the player is officially destroyed
@@ -245,14 +246,32 @@ export default class Player {
     this.sprite.destroy();
   }
   onPlayerCollide({ gameObjectB }) {
-    if (!gameObjectB || !(gameObjectB instanceof Phaser.Tilemaps.Tile)) return;
-    const tile = gameObjectB;
-    if (tile.properties.lethal) {
-      this.scene.unsubscribePlayerCollide();
-      console.log(this);
-      //this.freeze();
-      this.sprite.setStatic(true);
-      sceneEvents.emit('playerDeath');
+    // console.log(gameObjectB);
+    if (!gameObjectB) return;
+    if (gameObjectB instanceof Phaser.Tilemaps.Tile) {
+      // EMIT TILE COLLISION EVENT
+      const tile = gameObjectB;
+      if (tile.properties.lethal) {
+        this.scene.unsubscribePlayerCollide();
+        this.sprite.setStatic(true);
+        sceneEvents.emit('playerDeath');
+      } else if (this.currentMacroState instanceof bouncingState) {
+        sceneEvents.emit('bounce');
+        //console.log('bounce from collision')
+      }
+    } else {
+      // EMIT OBJECT EVENT
+      const object = gameObjectB;
+      if (
+        object.name == 'spike' &&
+        !(this.currentMacroState instanceof bouncingState)
+      ) {
+        this.setMacroState('bouncing');
+        //console.log('touching spikes');
+      } else if (this.currentMacroState instanceof bouncingState) {
+        sceneEvents.emit('bounce');
+        //console.log('bounce from collision')
+      }
     }
 
     //DEALING WITH BOUNCING STATE ON OBJECTS

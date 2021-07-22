@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { sceneEvents } from '../../lib/EventsCenter';
 export default class SuperBounce {
   // /** @type {Phaser.Physics.Matter.Matter} */
   // player
@@ -11,16 +12,22 @@ export default class SuperBounce {
   }
 
   onStateEnter() {
+    sceneEvents.on('bounce', this.returnToDefault, this);
     this.player.sprite.anims.play('player-jump');
-    this.player.sprite.setVelocityY(-8);
+    this.player.sprite.setVelocityY(-14);
     this.player.canJump = false;
     this.player.jumpCooldownTimer = this.player.scene.time.addEvent({
       delay: 250,
       callback: () => (this.player.canJump = true),
     });
-    console.log('jump state entered');
+    //this.player.setMacroState('default');
   }
 
   onStateUpdate() {}
   onStateExit() {}
+  returnToDefault() {
+    if (this.player.currentJumpState instanceof SuperBounce) {
+      this.player.setMacroState('default');
+    }
+  }
 }

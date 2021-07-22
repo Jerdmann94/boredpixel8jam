@@ -29,15 +29,21 @@ export default class onFireState {
     const anims = this.player.scene.anims;
     anims.create({
       key: 'player-idle-fire',
-      frames: anims.generateFrameNumbers('shrek', { start: 0, end: 0 }),
-      frameRate: 3,
+      frames: anims.generateFrameNumbers('fireidle', { start: 0, end: 3 }),
+      frameRate: 12,
       repeat: -1,
     });
     anims.create({
       key: 'player-run-fire',
-      frames: anims.generateFrameNumbers('shrek', { start: 0, end: 3 }),
+      frames: anims.generateFrameNumbers('firewalk', { start: 0, end: 1 }),
       frameRate: 12,
       repeat: -1,
+    });
+    anims.create({
+      key: 'player-jump-fire',
+      frames: anims.generateFrameNumbers('firewalk', { start: 2, end: 3 }),
+      frameRate: 12,
+      repeat: 1,
     });
 
     this.player.anims = anims;
@@ -45,7 +51,7 @@ export default class onFireState {
 
     this.player.states = this.states;
     this.player.jumpStates = this.jumpStates;
-    console.log(this.player.jumpStates);
+    // console.log(this.player.jumpStates);
     this.player.setState('fireIdle');
     this.player.setJumpState('fireNotJumping');
   }
