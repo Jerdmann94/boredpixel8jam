@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { sceneEvents } from '../../lib/EventsCenter';
 export default class bouncing {
   // /** @type {Phaser.Physics.Matter.Matter} */
   // player
@@ -18,6 +19,7 @@ export default class bouncing {
   }
 
   onStateEnter() {
+    sceneEvents.on('bounce', this.bounce, this);
     this.player.sprite.anims.play('player-jump');
     this.player.sprite.setVelocityY(-8);
     this.player.canJump = false;
@@ -27,6 +29,16 @@ export default class bouncing {
     });
   }
 
-  onStateUpdate() {}
+  onStateUpdate() {
+    if (this.player.jumpInput.isDown()) {
+      this.player.setJumpState('superBounce');
+    }
+  }
   onStateExit() {}
+
+  bounce() {
+    if (this.player.currentJumpState instanceof bouncing) {
+      this.player.sprite.setVelocityY(-6);
+    }
+  }
 }

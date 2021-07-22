@@ -4,6 +4,7 @@ import bounceRight from '../bouncingStates/bounceRight';
 import bouncing from '../bouncingStates/bouncing';
 import superBounce from '../bouncingStates/superBounce';
 import Phaser from 'phaser';
+import { sceneEvents } from '../../lib/EventsCenter';
 
 export default class bouncingState {
   player;
@@ -32,7 +33,7 @@ export default class bouncingState {
   }
 
   onStateEnter() {
-    console.log('entering bounce state');
+    //console.log('entering bounce state');
 
     const anims = this.player.scene.anims;
     anims.create({
@@ -63,4 +64,5 @@ export default class bouncingState {
     this.player.currentJumpState.onStateUpdate();
   }
   onStateExit() {}
+  bounce() {}
 }

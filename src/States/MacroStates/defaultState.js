@@ -32,7 +32,7 @@ export default class defaultState {
     const anims = this.player.scene.anims;
     anims.create({
       key: 'player-idle',
-      frames: anims.generateFrameNumbers('player', { start: 5, end: 5 }),
+      frames: anims.generateFrameNumbers('player', { start: 0, end: 0 }),
       frameRate: 3,
       repeat: -1,
     });
@@ -44,17 +44,17 @@ export default class defaultState {
     });
     anims.create({
       key: 'player-jump',
-      frames: anims.generateFrameNumbers('player', { start: 3, end: 5 }),
+      frames: anims.generateFrameNumbers('player', { start: 3, end: 4 }),
       frameRate: 12,
       repeat: 1,
     });
     this.player.anims = anims;
     const args = ['player', this.x, this.y];
-    this.player.createSprite.apply(this.player, args);
 
     this.player.states = this.states;
     this.player.jumpStates = this.jumpStates;
     //console.log(this.player.sprite);
+    this.player.createSprite.apply(this.player, args);
     this.player.setState('idle');
     this.player.setJumpState('notJumping');
   }

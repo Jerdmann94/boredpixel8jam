@@ -14,7 +14,6 @@ export default class fireIdle {
   }
 
   onStateUpdate() {
-    this.player.sprite.anims.play(`player-run-fire`);
     const sprite = this.player.sprite;
     const velocity = sprite.body.velocity;
     const isRightKeyDown = this.player.rightInput.isDown();
